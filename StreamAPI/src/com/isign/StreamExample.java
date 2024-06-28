@@ -6,10 +6,12 @@ import java.util.stream.*;
 class Person {
     String name;
     int age;
+    List<String> hobbies;
 
-    Person(String name, int age) {
+    Person(String name, int age, List<String> hobbies) {
         this.name = name;
         this.age = age;
+        this.hobbies = hobbies;
     }
 
     public String getName() {
@@ -18,6 +20,10 @@ class Person {
 
     public int getAge() {
         return age;
+    }
+
+    public List<String> getHobbies() {
+        return hobbies;
     }
 
     @Override
@@ -29,40 +35,61 @@ class Person {
 public class StreamExample {
     public static void main(String[] args) {
         List<Person> people = Arrays.asList(
-            new Person("Alice", 30),
-            new Person("Bob", 15),
-            new Person("Charlie", 25),
-            new Person("David", 20)
+            new Person("Alice", 30, Arrays.asList("Reading", "Hiking")),
+            new Person("Bob", 15, Arrays.asList("Gaming", "Cycling")),
+            new Person("Charlie", 25, Arrays.asList("Swimming", "Hiking")),
+            new Person("David", 20, Arrays.asList("Reading", "Gaming")),
+            new Person("Eve", 35, Arrays.asList("Swimming", "Cycling"))
         );
 
-        //  Filter out people who are under 18
+        // Step 1: Filter out people who are under 20
         List<Person> adults = people.stream()
-            .filter(person -> person.getAge() >= 18)
+            .filter(person -> person.getAge() >= 20)
             .collect(Collectors.toList());
 
-        //  Sort the remaining people by their name
-        List<Person> sortedAdults = adults.stream()
-            .sorted(Comparator.comparing(Person::getName))
+        // Step 2: Sort by age
+        List<Person> sortedByAge = adults.stream()
+            .sorted(Comparator.comparingInt(Person::getAge))
             .collect(Collectors.toList());
 
-        //  Collect their names into a list
-        List<String> names = sortedAdults.stream()
+        // Step 3: Collect their names into a list
+        List<String> names = sortedByAge.stream()
             .map(Person::getName)
             .collect(Collectors.toList());
 
-        //  Create a map where the key is the person's name and the value is their age
-        Map<String, Integer> nameToAgeMap = sortedAdults.stream()
-            .collect(Collectors.toMap(Person::getName, Person::getAge));
+        // Step 4: Group people by age
+        Map<Integer, List<Person>> peopleByAge = sortedByAge.stream()
+            .collect(Collectors.groupingBy(Person::getAge));
 
-        // Printing results
+        // Step 5: Calculate the average age
+        double averageAge = sortedByAge.stream()
+            .mapToInt(Person::getAge)
+            .average()
+            .orElse(0.0);
+
+        // Step 6: Extract all hobbies and collect them into a single list
+        List<String> allHobbies = sortedByAge.stream()
+            .flatMap(person -> person.getHobbies().stream())
+            .distinct()
+            .collect(Collectors.toList());
+
+        // Print results
         System.out.println("Filtered and Sorted List of Adults:");
-        sortedAdults.forEach(System.out::println);
+        sortedByAge.forEach(System.out::println);
 
         System.out.println("\nList of Names:");
         names.forEach(System.out::println);
 
-        System.out.println("\nMap of Names to Ages:");
-        nameToAgeMap.forEach((name, age) -> System.out.println(name + ": " + age));
+        System.out.println("\nPeople Grouped by Age:");
+        peopleByAge.forEach((age, peopleList) -> {
+            System.out.println(age + ": " + peopleList);
+        });
+
+        System.out.println("\nAverage Age:");
+        System.out.println(averageAge);
+
+        System.out.println("\nAll Hobbies:");
+        allHobbies.forEach(System.out::println);
     }
 }
 
