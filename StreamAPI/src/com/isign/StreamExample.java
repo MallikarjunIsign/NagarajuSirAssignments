@@ -42,32 +42,32 @@ public class StreamExample {
             new Person("Eve", 35, Arrays.asList("Swimming", "Cycling"))
         );
 
-        // Step 1: Filter out people who are under 20
+        //Filter out people who are under 20
         List<Person> adults = people.stream()
             .filter(person -> person.getAge() >= 20)
             .collect(Collectors.toList());
 
-        // Step 2: Sort by age
+        //  Sort by age
         List<Person> sortedByAge = adults.stream()
             .sorted(Comparator.comparingInt(Person::getAge))
             .collect(Collectors.toList());
 
-        // Step 3: Collect their names into a list
+        // Collect their names into a list
         List<String> names = sortedByAge.stream()
             .map(Person::getName)
             .collect(Collectors.toList());
 
-        // Step 4: Group people by age
+        // Group people by age
         Map<Integer, List<Person>> peopleByAge = sortedByAge.stream()
             .collect(Collectors.groupingBy(Person::getAge));
 
-        // Step 5: Calculate the average age
+        // Calculate the average age
         double averageAge = sortedByAge.stream()
             .mapToInt(Person::getAge)
             .average()
             .orElse(0.0);
 
-        // Step 6: Extract all hobbies and collect them into a single list
+        //  Extract all hobbies and collect them into a single list
         List<String> allHobbies = sortedByAge.stream()
             .flatMap(person -> person.getHobbies().stream())
             .distinct()
